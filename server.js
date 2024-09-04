@@ -1,6 +1,6 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
-const ExcelJS = require('exceljs');
+const xlsx = require('xlsx');
 const path = require('path');
 const fs = require('fs');
 
@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
 });
 
 // Route pour gérer le téléchargement du fichier Excel
-app.post('/upload', async (req, res) => {
+app.post('/upload', (req, res) => {
     if (!req.files || !req.files.excelFile) {
         return res.status(400).send('Aucun fichier n\'a été téléchargé.');
     }
@@ -26,9 +26,13 @@ app.post('/upload', async (req, res) => {
 
     try {
         // Lire le fichier Excel en tant que buffer
-        const workbook = new ExcelJS.Workbook();
-        await workbook.xlsx.load(excelFile.data);
-        const worksheet = workbook.worksheets[0];
+        const workbook = xlsx.read(excelFile.data, { type: 'buffer' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const data = xlsx.utils.sheet_to_json(worksheet);
+
+        // Afficher les données lues pour vérification
+        console.log('Données lues du fichier Excel:', data);
 
         // Initialiser les compteurs
         let countStartsWithI = 0;
@@ -39,13 +43,13 @@ app.post('/upload', async (req, res) => {
         let countSupervisionNagios = 0;
 
         // Parcourir les lignes et effectuer les comptages nécessaires
-        worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
-            if (rowNumber === 1) return; // Ignorer l'en-tête
+        data.forEach(row => {
+            console.log('Ligne traitée:', row); // Afficher chaque ligne traitée
 
-            const rfcNumber = row.getCell(1).value;
-            const priorityValue = row.getCell(2).value;
-            const groupValue = row.getCell(3).value;
-            const categorie1Value = row.getCell(4).value;
+            const rfcNumber = row['RFC_NUMBER'];
+            const priorityValue = row['PRIORITY_VALUE'];
+            const groupValue = row['Groupe'];
+            const categorie1Value = row['Catégorie 1'];
 
             if (typeof rfcNumber === 'string') {
                 if (rfcNumber.startsWith('I')) {
@@ -75,29 +79,26 @@ app.post('/upload', async (req, res) => {
         });
 
         // Créer une nouvelle feuille avec les résultats
-        const newWorkbook = new ExcelJS.Workbook();
-        const resultSheet = newWorkbook.addWorksheet('Résultats');
+        const resultData = [
+            { "Élément": "Incidents", "Total": countStartsWithI },
+            { "Élément": "Demandes", "Total": countStartsWithS },
+            { "Élément": "P1", "Total": priorityCounts[1] },
+            { "Élément": "P2", "Total": priorityCounts[2] },
+            { "Élément": "P3", "Total": priorityCounts[3] },
+            { "Élément": "P4", "Total": priorityCounts[4] },
+            { "Élément": "P5", "Total": priorityCounts[5] },
+            { "Élément": "Network", "Total": countNetwork },
+            { "Élément": "System", "Total": countSystem },
+            { "Élément": "Supervision Nagios", "Total": countSupervisionNagios }
+        ];
 
-        // Ajouter des en-têtes de colonne
-        resultSheet.addRow(['Lettre', 'Nombre d\'éléments']);
-        resultSheet.addRow(['I', countStartsWithI]);
-        resultSheet.addRow(['S', countStartsWithS]);
-
-        resultSheet.addRow(['Priorité', 'Nombre d\'occurrences']);
-        for (let i = 1; i <= 5; i++) {
-            resultSheet.addRow([i, priorityCounts[i]]);
-        }
-
-        resultSheet.addRow(['Groupe', 'Nombre d\'éléments']);
-        resultSheet.addRow(['Network', countNetwork]);
-        resultSheet.addRow(['System', countSystem]);
-
-        resultSheet.addRow(['Catégorie', 'Nombre d\'occurrences']);
-        resultSheet.addRow(['Supervision Nagios', countSupervisionNagios]);
+        const resultSheet = xlsx.utils.json_to_sheet(resultData, { header: ["Élément", "Total"] });
+        const newWorkbook = xlsx.utils.book_new();
+        xlsx.utils.book_append_sheet(newWorkbook, resultSheet, 'Résultats');
 
         // Enregistrer le classeur Excel avec les résultats dans un fichier temporaire
         const outputFilePath = path.join(__dirname, 'resultat.xlsx');
-        await newWorkbook.xlsx.writeFile(outputFilePath);
+        xlsx.writeFile(newWorkbook, outputFilePath);
 
         // Envoyer le fichier généré au client
         res.download(outputFilePath, 'resultat.xlsx', (err) => {
