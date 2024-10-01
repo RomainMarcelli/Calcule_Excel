@@ -63,24 +63,6 @@ async function generateStyledExcel(countStartsWithI, countStartsWithS, priorityC
     // Activer le retour automatique à la ligne pour la cellule A2
     totalRow.getCell(1).alignment = { wrapText: true };
 
-    // Appliquer un style à la cellule A2
-    const cellA2 = resultSheet.getCell('A2');
-    cellA2.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'D3D3D3' } // Gris clair
-    };
-    cellA2.font = { bold: true };
-    cellA2.alignment = { wrapText: true, vertical: 'middle', horizontal: 'left' };
-    addCellStyle(cellA2, {
-        border: {
-            top: { style: 'medium' },   // Bordure en haut de type 'medium'
-            left: { style: 'thin' },
-            bottom: { style: 'thin' },
-            right: { style: 'medium' }
-        }
-    });
-
     // Créer les données des résultats
     const resultData = [
         { label: "Incidents", value: countStartsWithI },
@@ -151,18 +133,12 @@ async function generateStyledExcel(countStartsWithI, countStartsWithS, priorityC
         });
     });
 
-    const cellA5 = resultSheet.getCell('A5');
-    // Ajouter le texte en gras
-    cellA5.font = { bold: true };
-    // Ajouter un style avec bordure supérieure 'medium'
-    addCellStyle(cellA5, {
-        border: {
-            top: { style: 'medium' },   // Bordure en haut de type 'medium'
-            left: { style: 'thin' },
-            bottom: { style: 'thin' },
-            right: { style: 'medium' }
+    resultSheet.getColumn('B').eachCell((cell, rowNumber) => {
+        if (rowNumber !== 1) { // Ignorer la cellule B1
+            cell.alignment = { vertical: 'bottom', horizontal: 'right' };
         }
     });
+
     const cellA17 = resultSheet.getCell('A17');
     // Ajouter le texte en gras
     cellA17.font = { bold: true };
@@ -176,18 +152,7 @@ async function generateStyledExcel(countStartsWithI, countStartsWithS, priorityC
         }
     });
 
-    const cellA11 = resultSheet.getCell('A11');
-    // Ajouter le texte en gras
-    cellA11.font = { bold: true };
-    // Ajouter un style avec bordure supérieure 'medium'
-    addCellStyle(cellA11, {
-        border: {
-            top: { style: 'medium' },   // Bordure en haut de type 'medium'
-            left: { style: 'thin' },
-            bottom: { style: 'thin' },
-            right: { style: 'medium' }
-        }
-    });
+
     const cellA15 = resultSheet.getCell('A15');
     // Ajouter le texte en gras
     cellA15.font = { bold: true };
@@ -253,10 +218,6 @@ async function generateStyledExcel(countStartsWithI, countStartsWithS, priorityC
     addCellStyle(cellA14, {
         alignment: { horizontal: 'left' },
     });
-    const cellA16 = resultSheet.getCell('A16');
-    addCellStyle(cellA16, {
-        alignment: { horizontal: 'left' },
-    });
     const cellA23 = resultSheet.getCell('A23');
     addCellStyle(cellA23, {
         alignment: { horizontal: 'left' },
@@ -266,19 +227,113 @@ async function generateStyledExcel(countStartsWithI, countStartsWithS, priorityC
         alignment: { horizontal: 'left' },
     });
 
+    const cellA2 = resultSheet.getCell('A2');
+    cellA2.value = {
+        richText: [
+            { text: 'Nombre Total tickets ouverts', font: { bold: true } },
+            { text: '\n', font: { bold: false } },
+            { text: '(lundi au dimanche)', font: { bold: true } }
+        ]
+    };
+    cellA2.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'D3D3D3' } // Gris clair
+    };
+    cellA2.border = {
+        top: { style: 'medium' },   // Bordure en haut de type 'medium'
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'medium' }
+    };
+
+    cellA2.alignment = {
+        vertical: 'middle',
+        horizontal: 'center',
+        wrapText: true // Autorise les retours à la ligne
+    };
+
+    resultSheet.getRow(2).height = 35;
+
+    const cellA5 = resultSheet.getCell('A5');
+    cellA5.value = {
+        richText: [
+            { text: 'Priorité P1 etc...', font: { bold: true } },
+            { text: '\n', font: { bold: false } },
+            { text: '(Incidents & Demandes)', font: { bold: true } }
+        ]
+    };
+    cellA5.border = {
+        top: { style: 'medium' },   // Bordure en haut de type 'medium'
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'medium' }
+    };
+
+    cellA5.alignment = {
+        vertical: 'middle',
+        horizontal: 'center',
+        wrapText: true // Autorise les retours à la ligne
+    };
+
+    resultSheet.getRow(5).height = 35;
+
+    const cellA11 = resultSheet.getCell('A11');
+    cellA11.value = {
+        richText: [
+            { text: 'Détails par groupes', font: { bold: true } },
+            { text: '\n', font: { bold: false } },
+            { text: '(uniquement incidents)', font: { bold: true } }
+        ]
+    };
+    cellA11.border = {
+        top: { style: 'medium' },   // Bordure en haut de type 'medium'
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'medium' }
+    };
+
+    cellA11.alignment = {
+        vertical: 'middle',
+        horizontal: 'center',
+        wrapText: true // Autorise les retours à la ligne
+    };
+
+    resultSheet.getRow(11).height = 35;
+
+    const cellA16 = resultSheet.getCell('A16');
+    cellA16.value = {
+        richText: [
+            { text: 'SLA:', font: { bold: false } },
+            { text: '\n', font: { bold: false } },
+            { text: 'pris en charge en moins de 30 minutes', font: { bold: false } }
+        ]
+    };
+
+    cellA16.alignment = {
+        vertical: 'middle',
+        horizontal: 'left',
+        wrapText: true // Autorise les retours à la ligne
+    };
+
+    resultSheet.getRow(16).height = 50;
+
     const cellA18 = resultSheet.getCell('A18');
     cellA18.value = {
         richText: [
             { text: 'P2', font: { bold: true } },
-            { text: ': Temps de traitement < 2h', font: { bold: false } }
+            { text: '\n', font: { bold: false } },
+            { text: 'Temps de traitement < 2h', font: { bold: false } }
         ]
     };
-    cellA18.alignment = { vertical: 'middle', horizontal: 'left' };
 
-    // Ajouter un style avec bordure supérieure 'medium'
-    addCellStyle(cellA18, {
-        alignment: { horizontal: 'left' },
-    });
+    cellA18.alignment = {
+        vertical: 'middle',
+        horizontal: 'left',
+        wrapText: true // Autorise les retours à la ligne
+    };
+
+    resultSheet.getRow(18).height = 50;
 
     // Ajouter la ligne pour P3
     const cellA19 = resultSheet.getCell('A19');
@@ -286,45 +341,52 @@ async function generateStyledExcel(countStartsWithI, countStartsWithS, priorityC
         richText: [
             { text: 'P3', font: { bold: true } },
             { text: '\n', font: { bold: false } }, // Saut de ligne
-            { text: ': Temps de traitement < 8h', font: { bold: false } }
+            { text: 'Temps de traitement < 8h', font: { bold: false } }
         ]
     };
-    cellA19.alignment = { 
-        vertical: 'middle', 
-        horizontal: 'left', 
+    cellA19.alignment = {
+        vertical: 'middle',
+        horizontal: 'left',
         wrapText: true // Autorise les retours à la ligne
     };
 
-    resultSheet.getRow(19).height = 30;
+    resultSheet.getRow(19).height = 50;
 
     const cellA20 = resultSheet.getCell('A20');
     cellA20.value = {
         richText: [
             { text: 'P4', font: { bold: true } },
-            { text: ': Temps de traitement < 3j', font: { bold: false } }
+            { text: '\n', font: { bold: false } }, // Ajoute une nouvelle ligne
+            { text: 'Temps de traitement < 3j', font: { bold: false } }
         ]
     };
-    cellA20.alignment = { vertical: 'middle', horizontal: 'left' };
 
-    // Ajouter un style avec bordure supérieure 'medium'
-    addCellStyle(cellA20, {
-        alignment: { horizontal: 'left' },
-    });
+    // Configure l'alignement et autorise le retour à la ligne dans une seule déclaration
+    cellA20.alignment = {
+        vertical: 'middle',
+        horizontal: 'left',
+        wrapText: true // Autorise les retours à la ligne
+    };
+
+    resultSheet.getRow(20).height = 50; // Ajuste la hauteur si nécessaire
+
 
     const cellA21 = resultSheet.getCell('A21');
     cellA21.value = {
         richText: [
             { text: 'P5', font: { bold: true } },
-            { text: ': Temps de traitement < 5j', font: { bold: false } }
+            { text: '\n', font: { bold: false } },
+            { text: 'Temps de traitement < 5j', font: { bold: false } }
         ]
     };
-    cellA21.alignment = { vertical: 'middle', horizontal: 'left' };
 
-    // Ajouter un style avec bordure supérieure 'medium'
-    addCellStyle(cellA21, {
-        alignment: { horizontal: 'left' },
-    });
+    cellA21.alignment = {
+        vertical: 'middle',
+        horizontal: 'left',
+        wrapText: true // Autorise les retours à la ligne
+    };
 
+    resultSheet.getRow(21).height = 50;
 
     // Enregistrer le fichier Excel avec les résultats
     await newWorkbook.xlsx.writeFile(outputFilePath);

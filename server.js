@@ -68,7 +68,7 @@ app.post('/upload', (req, res) => {
 
         // Dossier où le fichier sera sauvegardé
         const outputDir = path.join(__dirname); // Change ce chemin si tu veux un autre dossier
-        const outputFilePath = path.join(outputDir, 'resultat_stylise.xlsx');
+        const outputFilePath = path.join(outputDir, 'Reporting_Nhood.xlsx');
 
         // Créer le dossier s'il n'existe pas
         if (!fs.existsSync(outputDir)) {
@@ -79,7 +79,7 @@ app.post('/upload', (req, res) => {
         generateStyledExcel(countStartsWithI, countStartsWithS, priorityCounts, countNetwork, countSystem, countSupervisionNagios, outputFilePath)
             .then(() => {
                 // Envoyer le fichier Excel stylisé en réponse
-                res.download(outputFilePath, 'resultat_stylise.xlsx', (err) => {
+                res.download(outputFilePath, 'Reporting_Nhood.xlsx', (err) => {
                     if (err) {
                         console.error('Erreur lors de l\'envoi du fichier:', err);
                         res.status(500).send('Erreur lors du traitement du fichier.');
