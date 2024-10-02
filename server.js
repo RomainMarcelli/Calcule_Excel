@@ -3,7 +3,8 @@ const fileUpload = require('express-fileupload');
 const xlsx = require('xlsx');
 const path = require('path');
 const fs = require('fs');
-const { generateStyledExcel } = require('./excelDesign'); // Importer la fonction de design
+const { generateStyledExcel } = require('./excelDesign');
+const {mergeExcelFiles} = require('./merge'); // Importer la fonction de design
 
 const app = express();
 const PORT = 3000;
@@ -101,6 +102,38 @@ app.post('/upload', (req, res) => {
         console.error('Erreur lors du traitement du fichier Excel:', error);
         res.status(500).send('Erreur lors du traitement du fichier Excel.');
     }
+});
+
+// Nouvelle route pour fusionner deux fichiers
+app.post('/merge', (req, res) => {
+    if (!req.files || !req.files.excelFile1 || !req.files.excelFile2) {
+        return res.status(400).send('Deux fichiers sont nécessaires pour la fusion.');
+    }
+
+    const excelFile1 = req.files.excelFile1;
+    const excelFile2 = req.files.excelFile2;
+    const outputMergeFilePath = path.join(__dirname, 'Reporting_Merged.xlsx');
+
+    mergeExcelFiles(excelFile1, excelFile2, outputMergeFilePath)
+        .then(outputPath => {
+            res.download(outputPath, 'Reporting_Merged.xlsx', (err) => {
+                if (err) {
+                    console.error('Erreur lors de l\'envoi du fichier fusionné:', err);
+                    res.status(500).send('Erreur lors du traitement du fichier fusionné.');
+                }
+
+                // Supprimer le fichier temporaire après téléchargement
+                fs.unlink(outputPath, (unlinkErr) => {
+                    if (unlinkErr) {
+                        console.error('Erreur lors de la suppression du fichier temporaire fusionné:', unlinkErr);
+                    }
+                });
+            });
+        })
+        .catch(error => {
+            console.error('Erreur lors du traitement des fichiers Excel:', error);
+            res.status(500).send('Erreur lors du traitement des fichiers Excel.');
+        });
 });
 
 // Démarrer le serveur

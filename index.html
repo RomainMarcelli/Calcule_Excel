@@ -7,52 +7,54 @@
 </head>
 <style>
     body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-}
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
 
-main{
-    display: flex;
-    flex-direction: column;
-}
-.upload-container {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
+    main {
+        display: flex;
+        flex-direction: column;
+    }
 
-h1 {
-    margin-bottom: 20px;
-}
+    .upload-container {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        margin-bottom: 20px;
+    }
 
-input[type="file"] {
-    margin-bottom: 20px;
-}
+    h1 {
+        margin-bottom: 20px;
+        text-align: center;
+    }
 
-button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
+    input[type="file"] {
+        margin-bottom: 20px;
+    }
 
-button:hover {
-    background-color: #0056b3;
-}
+    button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
 
-#message {
-    margin-top: 20px;
-}
+    button:hover {
+        background-color: #0056b3;
+    }
 
+    #message {
+        margin-top: 20px;
+    }
 </style>
 <body>
     <main>
@@ -61,6 +63,39 @@ button:hover {
             <input type="file" name="excelFile" accept=".xlsx, .xls" required>
             <button type="submit">Envoyer</button>
         </form>
+
+        <h1>Fusionner deux fichiers Excel</h1>
+        <form id="uploadForm"  class="upload-container" enctype="multipart/form-data" method="POST" action="/merge">
+            <input type="file" name="excelFile1" required />
+            <input type="file" name="excelFile2" required />
+            <button type="submit">Fusionner</button>
+        </form>
+              
     </main>
+    <!-- <script>
+        document.getElementById('mergeBtn').addEventListener('click', () => {
+            fetch('/api/merge', {
+                method: 'POST'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur lors de la fusion');
+                }
+                return response.blob(); // Récupérer le fichier en tant que blob
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'merged_output.xlsx'; // Nom du fichier téléchargé
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+            });
+        });
+    </script> -->
 </body>
 </html>
